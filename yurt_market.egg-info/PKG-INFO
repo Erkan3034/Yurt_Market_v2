@@ -1,0 +1,68 @@
+Metadata-Version: 2.4
+Name: yurt_market
+Version: 0.1.0
+Summary: Multi-dorm student marketplace built with Django, DRF, and a modular clean architecture.
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: Django<6.0,>=5.1
+Requires-Dist: djangorestframework<4.0,>=3.15.2
+Requires-Dist: djangorestframework-simplejwt<6.0,>=5.3.1
+Requires-Dist: django-environ>=0.11.2
+Requires-Dist: django-cors-headers<5.0,>=4.5.0
+Requires-Dist: psycopg2-binary<3.0,>=2.9.9
+Requires-Dist: redis>=5.1.0
+Requires-Dist: celery>=5.4.0
+Requires-Dist: drf-spectacular>=0.27.2
+Requires-Dist: django-filter>=24.3
+Requires-Dist: phonenumberslite>=8.13.37
+Requires-Dist: Pillow>=10.4.0
+Requires-Dist: python-slugify>=8.0.4
+Requires-Dist: structlog>=24.1.0
+Provides-Extra: dev
+Requires-Dist: ruff>=0.7.1; extra == "dev"
+Requires-Dist: pytest>=8.3.3; extra == "dev"
+Requires-Dist: pytest-django>=4.9.0; extra == "dev"
+Requires-Dist: factory-boy>=3.3.1; extra == "dev"
+Requires-Dist: model-bakery>=1.18.0; extra == "dev"
+
+# yurt_market
+
+Multi-dorm student marketplace built with Django, Django REST Framework, and a modular clean architecture. The platform enables students to order snacks from sellers inside their dorm while enforcing product limits, subscriptions, order workflows, notifications, analytics, and payments.
+
+## High-level architecture
+
+- **Config**: Django project configuration with environment-specific settings.
+- **Core**: Cross-cutting abstractions (events, repositories, exceptions, utilities).
+- **Modules**: Feature packages (`users`, `dorms`, `products`, `orders`, `subscription`, `notifications`, `analytics`, `payments`) that encapsulate models, repositories, services, and API endpoints.
+- **Scripts**: Operational helpers (migrations, data seeding, background jobs).
+
+### Principles
+
+- SOLID, Clean Architecture, and modular monolith boundaries.
+- Repository + service layer patterns for all business logic (views stay thin).
+- Domain event dispatching for stock, subscription, and notification workflows.
+- Event-driven integrations (SMTP alerts, analytics updates, cache busting).
+
+## Local development
+
+1. Create and activate a virtual environment targeting Python 3.11+.
+2. Install dependencies:
+   ```bash
+   pip install -e .[dev]
+   ```
+3. Configure environment variables in `.env` (see `config/settings/base.py` for keys).
+4. Run migrations, seed data, and start the development server:
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py runserver
+   ```
+
+## Testing
+
+```bash
+pytest
+```
+
+The included pytest configuration uses `config.settings.dev` and auto-discovers `tests/`.
+

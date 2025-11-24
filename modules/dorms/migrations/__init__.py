@@ -1,0 +1,2 @@
+"""Dorms app migrations."""
+
