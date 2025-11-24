@@ -1110,5 +1110,5 @@ CORS_ALLOWED_ORIGINS = env.list(
 
 Bu dokümantasyon, Yurt Market projesinin mevcut durumunu ve mimari kararlarını detaylı bir şekilde açıklamaktadır. Projeye yeni katılan geliştiriciler bu dokümantasyonu referans alarak hızlıca projeye adapte olabilirler.
 
-Sorularınız veya önerileriniz için lütfen iletişime geçin.
+Sorularınız veya önerileriniz için lütfen iletişime [Form](https://erkanturgut.netlify.app/contact) geçin.
 
