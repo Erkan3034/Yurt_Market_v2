@@ -9,11 +9,14 @@ Bu dokümantasyon, Yurt Market projesinde yapılan tüm geliştirmeleri ve mimar
 3. [Veritabanı Modelleri](#veritabanı-modelleri)
 4. [Repository Pattern](#repository-pattern)
 5. [Service Layer](#service-layer)
-6. [Event System (Domain Events)](#event-system-domain-events)
-7. [API Endpoints](#api-endpoints)
-8. [Authentication ve Authorization](#authentication-ve-authorization)
-9. [Cache ve Performans](#cache-ve-performans)
-10. [Ortam Yapılandırması](#ortam-yapılandırması)
+6. [Payment Modülü](#payment-modülü)
+7. [Event System (Domain Events)](#event-system-domain-events)
+8. [API Endpoints](#api-endpoints)
+9. [Authentication ve Authorization](#authentication-ve-authorization)
+10. [Cache ve Performans](#cache-ve-performans)
+11. [Arkaplan Görevleri ve Celery](#arkaplan-görevleri-ve-celery)
+12. [Logging Altyapısı](#logging-altyapısı)
+13. [Ortam Yapılandırması](#ortam-yapılandırması)
 
 ---
 
@@ -587,6 +590,64 @@ class AnalyticsService:
 
 ---
 
+## Payment Modülü
+
+Ödeme tarafı için hem servis katmanında hem de HTTP katmanında temel taşları hazırladım. Şu an `modules.payments` paketi Stripe gibi gerçek sağlayıcılara geçiş yapmadan önce `DummyPaymentAdapter` ile çalışacak şekilde tasarlandı.
+
+### PaymentService
+
+```python
+@dataclass
+class PaymentService:
+    provider: Literal["stripe", "dummy"] = "dummy"
+
+    def _adapter(self):
+        if self.provider == "stripe":
+            return StripeAdapter(
+                api_key=getattr(settings, "STRIPE_SECRET_KEY", ""),
+                success_url=settings.PAYMENT_SUCCESS_URL,
+                cancel_url=settings.PAYMENT_CANCEL_URL,
+            )
+        return DummyPaymentAdapter(
+            success_url=settings.PAYMENT_SUCCESS_URL,
+            cancel_url=settings.PAYMENT_CANCEL_URL,
+        )
+
+    def create_checkout(self, amount: float):
+        adapter = self._adapter()
+        try:
+            return adapter.create_checkout_session(amount=amount)
+        except PaymentError as exc:
+            raise PaymentError(f"Payment provider misconfigured: {exc}") from exc
+```
+
+- `provider` parametresi ile Stripe'a geçiş tek satırla yapılabilecek.
+- Adapter'lar yönlendirme URL'lerini ayarlıyor, böylece frontend sabit linkleri biliyor.
+- Hataları `PaymentError` olarak sarmalayarak üst katmanın tek tip exception yakalamasını sağlıyorum.
+
+### PaymentWebhookView
+
+```python
+class PaymentWebhookView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request):
+        """Receive payment provider webhooks."""
+        event = request.data
+        logger.info("payment.webhook_received", payload=event)
+        return Response({"status": "received"}, status=status.HTTP_200_OK)
+```
+
+- Endpoint `modules.payments.urls` içinde `/api/payments/webhook` olarak yayınlanıyor.
+- Webhook şimdilik payload'ı log'luyor; ileride PaymentService ile eşlenip sipariş/abonelik güncellenecek.
+- CSRF devre dışı çünkü sağlayıcılar anonim POST atıyor.
+
+---
+
 ## Event System (Domain Events)
 
 Event sistemi, modüller arası gevşek bağlantı (loose coupling) sağlar. Bir modülde olan değişiklik, diğer modülleri etkilemeden event üzerinden bildirilir.
@@ -717,11 +778,11 @@ class NotificationsConfig(AppConfig):
 
 2. **Stok Azaldığında:**
    - `Stock.decrease()` → `StockDecreasedEvent` dispatch
-   - (Handler henüz yazılmadı, opsiyonel)
+   - `modules.products.handlers.handle_stock_decreased` structlog ile stok bilgilerini kayda geçirir.
 
 3. **Stok Bittiğinde:**
    - `Stock.decrease()` → `ProductOutOfStockEvent` dispatch
-   - (Handler henüz yazılmadı, opsiyonel)
+   - `modules.products.handlers.handle_product_out` ürünü pasife alındığında log üretir.
 
 4. **Abonelik Aktifleştiğinde:**
    - `SubscriptionService.start_subscription()` → `SubscriptionActivatedEvent` dispatch
@@ -972,6 +1033,56 @@ def list_popular_sellers(self, dorm_id: int):
 
 ---
 
+## Arkaplan Görevleri ve Celery
+
+Analytics'in otomatik hesaplanması için Celery tabanlı bir worker altyapısı kurdum.
+
+### Celery Uygulaması
+
+```python
+# config/celery.py
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.dev")
+
+app = Celery("yurt_market")
+app.config_from_object("django.conf:settings", namespace="CELERY")
+app.autodiscover_tasks()
+```
+
+- `config/__init__.py` içinde `celery_app` export edildiği için Django start edildiğinde worker hazır.
+- Broker ve result backend olarak Redis kullanılıyor (`CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`).
+- Worker başlatma komutu: `celery -A config worker -l info`.
+
+### Analytics Task'i
+
+```python
+@shared_task(name="analytics.refresh_popular_sellers")
+def refresh_popular_sellers(dorm_id: int) -> None:
+    AnalyticsService().generate_popular_sellers(dorm_id)
+```
+
+- Task, servis katmanındaki güncel hesaplama metodunu çağırıyor.
+- Şimdilik manuel tetikliyoruz; Celery beat veya external scheduler eklediğimizde otomatik güncelleme tamamlanacak.
+
+---
+
+## Logging Altyapısı
+
+Structlog tabanlı merkezi bir logger helper'ı ekledim:
+
+```python
+def get_logger(name: str | None = None):
+    """Return a structlog logger with an optional custom name."""
+    if name:
+        return structlog.get_logger(name)
+    return structlog.get_logger()
+```
+
+- `core.utils.logging.get_logger` fonksiyonu structured logging için ortak giriş noktası.
+- `modules.products.handlers` ve `modules.payments.views.PaymentWebhookView` bu helper'ı kullanarak `stock.decreased`, `product.out_of_stock`, `payment.webhook_received` gibi event'leri JSON formatında log'luyor.
+- `STRUCTLOG_CONFIG` ayarları zaten `JSONRenderer` kullanacak şekilde yapılandırılmıştı; yeni helper bu ayarlarla uyumlu şekilde entegre edildi.
+
+---
+
 ## Ortam Yapılandırması
 
 ### Environment Variables
@@ -1064,6 +1175,10 @@ CORS_ALLOWED_ORIGINS = env.list(
 - ✅ CORS ayarları
 - ✅ Redis cache (analytics'te)
 - ✅ Migrations
+- ✅ Stock event handler'lar (Structlog ile stok ve out-of-stock loglaması)
+- ✅ Payment webhook endpoint ve PaymentService
+- ✅ Celery uygulaması + `analytics.refresh_popular_sellers` task'i
+- ✅ Structlog tabanlı logging helper
 
 ### Yapılacaklar 📋
 
@@ -1085,21 +1200,16 @@ CORS_ALLOWED_ORIGINS = env.list(
    - Business rule validation'ları
 
 5. **Payment Entegrasyonu**
-   - Checkout oluşturma
-   - Callback handler
+   - Checkout oluşturma ve subscription akışına bağlama
+   - Webhook içeriğini Order/Subscription güncellemesine dönüştürme
 
 6. **Analytics Otomatik Güncelleme**
-   - Celery task ile periyodik güncelleme
-   - Veya signal ile otomatik tetikleme
+   - Celery beat veya scheduler ile `refresh_popular_sellers` tetikle
 
-7. **Stock Event Handler'lar**
-   - `StockDecreasedEvent` handler (opsiyonel)
-   - `ProductOutOfStockEvent` handler (opsiyonel)
+7. **Logging**
+   - Structlog alanlarını (request id, user id vb.) global middleware ile ekleme
 
-8. **Logging**
-   - Structlog entegrasyonu yaygınlaştırma
-
-9. **Production Hazırlık**
+8. **Production Hazırlık**
    - Environment variable validation
    - Health check endpoint
    - Monitoring/logging setup

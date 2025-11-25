@@ -55,6 +55,11 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
    SMTP_USER=
    SMTP_PASSWORD=
    DEFAULT_FROM_EMAIL=no-reply@yurtmarket.local
+   PAYMENT_PROVIDER=dummy
+   PAYMENT_SUCCESS_URL=http://localhost:3000/payment/success
+   PAYMENT_CANCEL_URL=http://localhost:3000/payment/cancel
+   API_THROTTLE_RATE_ANON=50/minute
+   API_THROTTLE_RATE_USER=200/minute
    ```
 4. Run migrations, seed data, and start the development server:
    ```bash
@@ -65,6 +70,41 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
    ```
 
 **Note**: Development uses SQLite by default (no PostgreSQL required). For production, PostgreSQL is mandatory.
+
+### Tests
+
+```bash
+pytest
+```
+
+### Background workers
+
+Run Celery (after Redis is available):
+
+```bash
+celery -A config worker --loglevel=info
+```
+
+`modules.analytics.tasks.refresh_popular_sellers` is queued automatically when orders are approved.
+
+### Operations
+
+- `GET /health/` → overall health & database connectivity
+- `POST /api/payments/webhook` → payment provider callback endpoint
+- Swagger UI: `/api/schema/swagger-ui/`
+
+### Outstanding backend items
+
+- Replace dummy payment adapter with real Stripe/LemonSqueezy integration
+- Add automated job (Celery/cron) for refreshing analytics, stock alerts, notifications
+- Expand unit/integration test suite for services and API endpoints
+- Harden error handling/logging with structured context for each module
+
+### Security defaults
+
+- Rate limiting via DRF throttles (`50/min` anon, `200/min` authenticated — configurable via env).
+- Healthcheck endpoint returns minimal info intended for monitoring (add auth in prod as needed).
+- Remember to rotate secrets (`DJANGO_SECRET_KEY`, DB credentials) if `.env` was exposed.
 
 ## Testing
 

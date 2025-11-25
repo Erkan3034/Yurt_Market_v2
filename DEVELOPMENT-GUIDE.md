@@ -11,6 +11,7 @@
 | JWT authentication                                         | Bitti        | JWT tabanlı authentication eklendi.                                                     |
 | CORS ayarları                                              | Bitti        | Ortam bağımlı CORS ayarları yapılandırıldı.                                              |
 | Redis cache (analytics'te kullanılıyor)                    | Bitti        | Redis entegrasyonu, analytics modülünde aktif.                                          |
+| Celery & analytics task                                    | Bitti        | Celery app + `analytics.refresh_popular_sellers` task'i eklendi.                        |
 | Migrations                                                 | Bitti        | Tüm migration'lar oluşturuldu ve uygulandı.                                             |
 | Product Usage Tracking entegrasyonu                        | Yapılacak    | ProductService'te UsageTracking entegrasyonu eksik.                                     |
 | Testler: Unit testler (services, repositories)             | Yapılıyor    | Unit test hazırlıkları başladı.                                                         |
@@ -21,11 +22,11 @@
 | Validation: Serializer validation'ları güçlendirme         | Yapılacak    | Serializer'da alan doğrulamaları arttırılacak.                                          |
 | Validation: Business rule validation'ları                  | Yapılacak    | İş kuralları doğrulamaları eklenecek.                                                  |
 | Payment entegrasyonu: Checkout oluşturma                   | Yapılacak    | Subscription başlatılırken ödeme süreci eklenecek.                                      |
-| Payment entegrasyonu: Callback handler                     | Yapılacak    | Payment callback karşılayıcı yazılacak.                                                 |
-| Analytics otomatik güncelleme (Popular sellers)            | Yapılacak    | Hesaplama manuel. Celery task veya signal ile otomatikleştirilecek.                     |
-| Stock event handler'lar (StockDecreasedEvent vs OutOfStock)| Yapılacak(*) | İki event için handler yazılması opsiyonel.                                             |
+| Payment entegrasyonu: Callback handler                     | Bitti        | Payment webhook endpoint'i eklendi ve payload loglanıyor.                               |
+| Analytics otomatik güncelleme (Popular sellers)            | Yapılıyor    | Celery task hazır, periyodik tetikleme planlaması kaldı.                                |
+| Stock event handler'lar (StockDecreasedEvent vs OutOfStock)| Bitti        | Structlog tabanlı handler'lar `ProductsConfig.ready` içinde subscribe edildi.          |
 | API dokümantasyonu (Swagger UI)                            | Yapılıyor    | Endpoint açıklamaları tamamlanacak.                                                     |
-| Logging (Structlog kullanımı)                              | Yapılacak    | Structlog entegrasyonu yaygınlaştırılacak.                                              |
+| Logging (Structlog kullanımı)                              | Yapılıyor    | `get_logger` helper'ı eklendi, request kapsamı genişletilecek.                          |
 | Production hazırlık: Env var validation                    | Yapılacak    | Environment variable doğrulaması eklenecek.                                             |
 | Production hazırlık: Health check endpoint                 | Yapılacak    | Sağlık kontrol endpoint'i oluşturulacak.                                                |
 | Production hazırlık: Monitoring/logging setup              | Yapılacak    | Loglama altyapısı ve monitoring ayarlanacak.                                            |

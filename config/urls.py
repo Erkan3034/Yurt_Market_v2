@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from core.views import HealthCheckView
+
 def root_view(request):
     """Root endpoint with API information."""
     return JsonResponse(
@@ -27,6 +29,7 @@ def root_view(request):
 
 urlpatterns = [
     path("", root_view, name="root"),
+    path("health/", HealthCheckView.as_view(), name="healthcheck"),
     path("admin/", admin.site.urls),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
@@ -36,5 +39,6 @@ urlpatterns = [
     path("api/subscription/", include("modules.subscription.urls")),
     path("api/notifications/", include("modules.notifications.urls")),
     path("api/analytics/", include("modules.analytics.urls")),
+    path("api/payments/", include("modules.payments.urls")),
 ]
 

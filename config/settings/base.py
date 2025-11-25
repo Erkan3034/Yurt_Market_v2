@@ -18,6 +18,11 @@ env = environ.Env(
     DB_PORT=(str, "5432"),
     DB_USE_SQLITE=(bool, True),
     REDIS_URL=(str, "redis://localhost:6379/0"),
+    PAYMENT_PROVIDER=(str, "dummy"),
+    PAYMENT_SUCCESS_URL=(str, "http://localhost:3000/payment/success"),
+    PAYMENT_CANCEL_URL=(str, "http://localhost:3000/payment/cancel"),
+    API_THROTTLE_RATE_ANON=(str, "50/minute"),
+    API_THROTTLE_RATE_USER=(str, "200/minute"),
 )
 
 environ.Env.read_env(env_file=BASE_DIR / ".env")
@@ -138,6 +143,15 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
+    "EXCEPTION_HANDLER": "core.exceptions.handlers.drf_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": env("API_THROTTLE_RATE_ANON"),
+        "user": env("API_THROTTLE_RATE_USER"),
+    },
 }
 
 SPECTACULAR_SETTINGS = {
@@ -179,6 +193,10 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@yurtmarket.loca
 REDIS_URL = env("REDIS_URL")
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
+
+PAYMENT_PROVIDER = env("PAYMENT_PROVIDER")
+PAYMENT_SUCCESS_URL = env("PAYMENT_SUCCESS_URL")
+PAYMENT_CANCEL_URL = env("PAYMENT_CANCEL_URL")
 
 STRUCTLOG_CONFIG = {
     "processors": [

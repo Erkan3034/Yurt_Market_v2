@@ -18,6 +18,7 @@ class AnalyticsService:
             .annotate(total_orders=models.Count("id"), total_amount=models.Sum("total_amount"))
             .order_by("-total_amount")
         )
+        cache.delete(f"popular_sellers:{dorm_id}")
         PopularSellerRank.objects.filter(dorm_id=dorm_id).delete()
         for idx, aggregate in enumerate(aggregates, start=1):
             PopularSellerRank.objects.create(

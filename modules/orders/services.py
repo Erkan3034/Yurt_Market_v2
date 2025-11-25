@@ -9,11 +9,13 @@ from django.db import transaction
 
 from core.events import OrderCreatedEvent, event_dispatcher
 from core.exceptions import PermissionDeniedError, ValidationError
+from core.utils.logging import get_logger
 
 from .models import Order, OrderItem
 from .repositories import OrderRepository
 
 User = get_user_model()
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -79,6 +81,13 @@ class OrderService:
         self.dispatcher.dispatch(
             OrderCreatedEvent(payload={"order_id": order.id, "seller_id": seller.id, "customer_id": customer.id})
         )
+        logger.info(
+            "order.created",
+            order_id=order.id,
+            seller_id=seller.id,
+            customer_id=customer.id,
+            total_amount=str(total),
+        )
         return order
 
     def _change_status(self, *, order: Order, actor: User, status: str, note: str = "") -> Order:
@@ -87,11 +96,14 @@ class OrderService:
         order.status = status
         order.save(update_fields=["status"])
         order.log_status(status, actor.id, note)
+        logger.info("order.status_changed", order_id=order.id, status=status, actor_id=actor.id)
         return order
 
     def approve(self, order_id: int, seller: User) -> Order:
         order = self.order_repo.get(id=order_id, seller=seller)
-        return self._change_status(order=order, actor=seller, status=Order.Status.ONAY)
+        order = self._change_status(order=order, actor=seller, status=Order.Status.ONAY)
+        self._trigger_analytics_refresh(order.dorm_id)
+        return order
 
     def reject(self, order_id: int, seller: User, note: str = "") -> Order:
         order = self.order_repo.get(id=order_id, seller=seller)
@@ -108,4 +120,14 @@ class OrderService:
 
     def list_for_seller(self, seller: User):
         return self.order_repo.for_seller(seller.id).select_related("customer")
+
+    def _trigger_analytics_refresh(self, dorm_id: int) -> None:
+        try:
+            from modules.analytics.tasks import refresh_popular_sellers
+
+            refresh_popular_sellers.delay(dorm_id)
+        except Exception:
+            from modules.analytics.services import AnalyticsService
+
+            AnalyticsService().generate_popular_sellers(dorm_id)
 

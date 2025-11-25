@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from core.events import SubscriptionActivatedEvent, event_dispatcher
 from core.exceptions import ValidationError
+from core.utils.logging import get_logger
 
 from .repositories import (
     SubscriptionPlanRepository,
@@ -16,6 +17,7 @@ from .repositories import (
 )
 
 User = get_user_model()
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -26,6 +28,9 @@ class SubscriptionService:
 
     def has_active_subscription(self, seller_id: int) -> bool:
         return bool(self.subscription_repo.active_for_seller(seller_id))
+
+    def get_plan(self, plan_id: int):
+        return self.plan_repo.get(id=plan_id)
 
     def get_status(self, seller_id: int):
         subscription = self.subscription_repo.active_for_seller(seller_id)
@@ -51,6 +56,13 @@ class SubscriptionService:
         event_dispatcher.dispatch(
             SubscriptionActivatedEvent(payload={"seller_id": seller.id, "plan_id": plan.id})
         )
+        logger.info(
+            "subscription.activated",
+            seller_id=seller.id,
+            plan_id=plan.id,
+            subscription_id=subscription.id,
+            expires_at=str(subscription.expires_at),
+        )
         return subscription
 
     def update_usage(self, seller: User, product_count: int) -> None:
@@ -60,4 +72,5 @@ class SubscriptionService:
         else:
             tracker.product_slots = product_count
             tracker.save(update_fields=["product_slots"])
+        logger.info("subscription.usage_updated", seller_id=seller.id, product_count=product_count)
 
