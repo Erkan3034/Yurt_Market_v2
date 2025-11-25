@@ -23,6 +23,8 @@ def root_view(request):
                 "subscription": "/api/subscription/",
                 "notifications": "/api/notifications/",
                 "analytics": "/api/analytics/",
+                "Proudly developed By: ": "Erkan TURGUT",
+                "GitHub: ": "https://github.com/Erkan3034",
             },
         }
     )
