@@ -23,7 +23,8 @@ class UserService:
         *,
         email: str,
         password: str,
-        dorm_id: int,
+        dorm_name: str,
+        dorm_address: Optional[str] = "",
         role: str,
         phone: Optional[str] = None,
         iban: Optional[str] = None,
@@ -33,7 +34,8 @@ class UserService:
         if self.user_repo.find_by_email(email):
             raise ValidationError("Email already registered.")
 
-        user = self.user_repo.create(email=email, dorm_id=dorm_id, role=role)
+        dorm = self._get_or_create_dorm(dorm_name, dorm_address or "")
+        user = self.user_repo.create(email=email, dorm=dorm, role=role)
         user.set_password(password)
         user.save()
 
@@ -42,11 +44,31 @@ class UserService:
                 raise ValidationError("Seller phone is required.")
             self.seller_repo.create(
                 user=user,
-                dorm_id=dorm_id,
+                dorm=dorm,
                 phone=phone,
                 iban=iban or "",
                 notification_email=email,
             )
 
         return user
+
+    def _get_or_create_dorm(self, name: str, address: Optional[str] = ""):
+        from modules.dorms.models import Dorm
+
+        cleaned_name = name.strip()
+        if not cleaned_name:
+            raise ValidationError("Dorm name is required.")
+
+        dorm, created = Dorm.objects.get_or_create(
+            name=cleaned_name,
+            defaults={
+                "code": cleaned_name.lower().replace(" ", "-"),
+                "address": address or "",
+            },
+        )
+        if not created and address and not dorm.address:
+            dorm.address = address
+            dorm.save(update_fields=["address"])
+
+        return dorm
 

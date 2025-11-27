@@ -6,7 +6,7 @@ import { login } from "../../services/auth";
 import { authStore } from "../../store/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { getErrorMessage } from "../../lib/errors";
 
 const schema = z.object({
@@ -81,15 +81,15 @@ export const LoginPage = () => {
           <button
             type="submit"
             className="w-full rounded-2xl bg-brand-600 py-3 font-semibold text-white shadow-lg shadow-brand-500/30"
-            disabled={mutation.isLoading}
+            disabled={mutation.isPending}
           >
-            {mutation.isLoading ? "Giriş yapılıyor..." : "Giriş yap"}
+            {mutation.isPending ? "Giriş yapılıyor..." : "Giriş yap"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-slate-500">
           Hesabın yok mu?{" "}
           <Link to="/auth/register" className="font-semibold text-brand-600">
-            Hemen oluştur
+            Hemen kayıt ol
           </Link>
         </p>
       </div>

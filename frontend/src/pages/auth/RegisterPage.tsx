@@ -1,18 +1,21 @@
+import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { register as registerUser } from "../../services/auth";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { authStore } from "../../store/auth";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { getErrorMessage } from "../../lib/errors";
+import { fetchDorms } from "../../services/dorms";
+import type { Dorm } from "../../types";
 
 const schema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
   password: z.string().min(6, "Şifre en az 6 karakter"),
-  dorm_id: z.coerce.number().int().positive("Yurt ID girin"),
+  dorm_name: z.string().min(2, "Yurt adı gerekli"),
+  dorm_address: z.string().optional(),
   role: z.enum(["student", "seller"]),
   phone: z.string().optional(),
   iban: z.string().optional(),
@@ -22,37 +25,72 @@ type RegisterForm = z.infer<typeof schema>;
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, watch, formState } = useForm<RegisterForm>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      email: "",
-      password: "",
-      dorm_id: 1,
-      role: "student",
-      phone: "",
-      iban: "",
-    },
-  });
+  const [serverError, setServerError] = useState<string | null>(null);
+  const { register, handleSubmit, watch, formState, setValue, setError: setFieldError, clearErrors } =
+    useForm<RegisterForm>({
+      resolver: zodResolver(schema),
+      defaultValues: {
+        email: "",
+        password: "",
+        dorm_name: "",
+        dorm_address: "",
+        role: "student",
+        phone: "",
+        iban: "",
+      },
+    });
 
   const role = watch("role");
+  const dormName = watch("dorm_name");
+
+  const dormQuery = useQuery({
+    queryKey: ["dorms"],
+    queryFn: fetchDorms,
+  });
+
+  const dorms = Array.isArray(dormQuery.data) ? dormQuery.data : [];
+
+  const selectedDorm: Dorm | undefined = useMemo(() => {
+    if (!dormName?.trim()) return undefined;
+    return dorms.find((dorm) => dorm.name.toLowerCase() === dormName.trim().toLowerCase());
+  }, [dormName, dorms]);
+
+  useEffect(() => {
+    if (selectedDorm) {
+      setValue("dorm_address", selectedDorm.address ?? "");
+      clearErrors("dorm_address");
+    }
+  }, [selectedDorm, setValue, clearErrors]);
 
   const mutation = useMutation({
-    mutationFn: (payload: RegisterForm) => registerUser(payload),
+    mutationFn: (payload: RegisterForm) =>
+      registerUser({
+        ...payload,
+        dorm_address: selectedDorm?.address ?? payload.dorm_address,
+      }),
     onSuccess: () => {
-      setError(null);
+      setServerError(null);
       toast.success("Hesabın oluşturuldu!");
-      const role = authStore.getState().user?.role;
-      navigate(role === "seller" ? "/seller/products" : "/app/explore");
+      const userRole = authStore.getState().user?.role;
+      navigate(userRole === "seller" ? "/seller/products" : "/app/explore");
     },
     onError: (err: any) => {
       const message = getErrorMessage(err, "Kayıt sırasında hata oluştu");
-      setError(message);
+      setServerError(message);
       toast.error(message);
     },
   });
 
-  const onSubmit = (data: RegisterForm) => mutation.mutate(data);
+  const onSubmit = (data: RegisterForm) => {
+    if (!selectedDorm && !data.dorm_address?.trim()) {
+      setFieldError("dorm_address", {
+        type: "manual",
+        message: "Listede olmayan yurtlar için adres zorunludur.",
+      });
+      return;
+    }
+    mutation.mutate(data);
+  };
 
   return (
     <div className="flex min-h-screen flex-col justify-center bg-slate-50 px-4">
@@ -84,17 +122,44 @@ export const RegisterPage = () => {
               <p className="mt-1 text-xs text-red-500">{formState.errors.password.message}</p>
             )}
           </div>
-          <div>
-            <label className="text-sm font-medium text-slate-600">Yurt ID</label>
+          <div className="md:col-span-2">
+            <label className="text-sm font-medium text-slate-600">Yurt adı</label>
             <input
-              type="number"
-              {...register("dorm_id")}
+              list="dorm-options"
+              {...register("dorm_name")}
               className="mt-1 w-full rounded-2xl border-slate-200 text-slate-900"
+              placeholder="Örn: Yıldız Kız Öğrenci Yurdu"
             />
-            {formState.errors.dorm_id && (
-              <p className="mt-1 text-xs text-red-500">{formState.errors.dorm_id.message}</p>
+            <datalist id="dorm-options">
+              {dorms.map((dorm) => (
+                <option key={dorm.id} value={dorm.name}>
+                  {dorm.address}
+                </option>
+              ))}
+            </datalist>
+            {formState.errors.dorm_name && (
+              <p className="mt-1 text-xs text-red-500">{formState.errors.dorm_name.message}</p>
             )}
+            <p className="mt-1 text-xs text-slate-500">
+              {selectedDorm
+                ? selectedDorm.address || "Adres bilgisi yakında eklenecek."
+                : "Yurdun listede yoksa adını yaz ve aşağıya adresini ekle."}
+            </p>
           </div>
+          {!selectedDorm && (
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-slate-600">Yurt adresi</label>
+              <textarea
+                {...register("dorm_address")}
+                className="mt-1 w-full rounded-2xl border-slate-200 text-slate-900"
+                placeholder="Yurdun açık adresi"
+                rows={3}
+              />
+              {formState.errors.dorm_address && (
+                <p className="mt-1 text-xs text-red-500">{formState.errors.dorm_address.message}</p>
+              )}
+            </div>
+          )}
           <div>
             <label className="text-sm font-medium text-slate-600">Rol</label>
             <select
@@ -125,16 +190,17 @@ export const RegisterPage = () => {
               </div>
             </>
           )}
-          {error && (
+          {serverError && (
             <p className="md:col-span-2 rounded-2xl bg-red-50 p-3 text-sm text-red-600">
-              {error}
+              {serverError}
             </p>
           )}
           <button
             type="submit"
             className="md:col-span-2 rounded-2xl bg-brand-600 py-3 font-semibold text-white shadow-lg shadow-brand-500/30"
+            disabled={mutation.isPending}
           >
-            {mutation.isLoading ? "Kaydediliyor..." : "Kaydı tamamla"}
+            {mutation.isPending ? "Kaydediliyor..." : "Kaydı tamamla"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-slate-500">

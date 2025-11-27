@@ -19,7 +19,8 @@ export const login = async (email: string, password: string) => {
 export const register = async (payload: {
   email: string;
   password: string;
-  dorm_id: number;
+  dorm_name: string;
+  dorm_address?: string;
   role: "student" | "seller";
   phone?: string;
   iban?: string;

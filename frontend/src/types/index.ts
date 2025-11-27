@@ -3,6 +3,8 @@ export type UserRole = "student" | "seller" | "admin";
 export interface Dorm {
   id: number;
   name: string;
+  code: string;
+  address?: string;
 }
 
 export interface User {

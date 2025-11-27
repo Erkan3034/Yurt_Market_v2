@@ -14,10 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    dorm_id = serializers.IntegerField()
+    password = serializers.CharField(write_only=True, min_length=6)
+    dorm_name = serializers.CharField()
+    dorm_address = serializers.CharField(required=False, allow_blank=True)
     role = serializers.ChoiceField(choices=User.Roles.choices)
-    phone = serializers.CharField(required=False)
+    phone = serializers.CharField(required=False, allow_blank=True)
     iban = serializers.CharField(required=False, allow_blank=True)
 
     def create(self, validated_data):
