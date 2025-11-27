@@ -3,6 +3,8 @@ import { fetchSellerProducts, createProduct, deleteProduct } from "../../service
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-hot-toast";
+import { Spinner } from "../../components/ui/Spinner";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -37,15 +39,20 @@ export const ProductsPage = () => {
     onSuccess: () => {
       form.reset();
       queryClient.invalidateQueries({ queryKey: ["seller-products"] });
+      toast.success("Ürün eklendi");
     },
+    onError: () => toast.error("Ürün eklenemedi"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteProduct,
-    onSuccess: () =>
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["seller-products"],
-      }),
+      });
+      toast.success("Ürün silindi");
+    },
+    onError: () => toast.error("Ürün silinemedi"),
   });
 
   return (
@@ -90,7 +97,7 @@ export const ProductsPage = () => {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-semibold text-slate-900">Ürün listesi</h2>
         {isLoading ? (
-          <p>Yükleniyor...</p>
+          <Spinner label="Ürünler yükleniyor..." />
         ) : (
           <div className="mt-4 space-y-3 text-sm">
             {data?.map((product) => (

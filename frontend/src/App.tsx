@@ -13,6 +13,7 @@ import { SubscriptionPage } from "./pages/customer/SubscriptionPage";
 import { ProductsPage } from "./pages/seller/ProductsPage";
 import { SellerOrdersPage } from "./pages/seller/SellerOrdersPage";
 import { AnalyticsPage } from "./pages/seller/AnalyticsPage";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
         <AuthBootstrapper />
         <Routes>
           <Route path="/" element={<LandingPage />} />

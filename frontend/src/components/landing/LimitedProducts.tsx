@@ -6,18 +6,23 @@ interface LimitedProductsProps {
   products: Product[];
   loading: boolean;
   error: string | null;
+  limited?: boolean;
 }
 
-export const LimitedProducts = ({ products, loading, error }: LimitedProductsProps) => (
+export const LimitedProducts = ({ products, loading, error, limited = true }: LimitedProductsProps) => (
   <section id="products" className="mx-auto max-w-6xl px-4">
     <div className="mb-6 flex flex-col gap-3 text-center md:text-left">
       <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
         Yurttaki satıcılar
       </p>
-      <h2 className="text-3xl font-bold text-slate-900">Üye olmadan 10 ürüne kadar göz at</h2>
-      <p className="text-sm text-slate-500">
-        Daha fazla ürün görmek ve sipariş vermek için ücretsiz kayıt ol.
-      </p>
+      <h2 className="text-3xl font-bold text-slate-900">
+        {limited ? "Üye olmadan 10 ürüne kadar göz at" : "Bugün öne çıkan ürünler"}
+      </h2>
+      {limited && (
+        <p className="text-sm text-slate-500">
+          Daha fazla ürün görmek ve sipariş vermek için ücretsiz kayıt ol.
+        </p>
+      )}
     </div>
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {loading
@@ -58,16 +63,26 @@ export const LimitedProducts = ({ products, loading, error }: LimitedProductsPro
           ))}
     </div>
     {error && (
-      <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-700">{error}</p>
+      <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-700">
+        <p>{error}</p>
+        <p className="mt-2">
+          <Link to="/auth/register" className="font-semibold underline">
+            Hemen kaydol
+          </Link>{" "}
+          ve aktif satıcıların tamamını gör.
+        </p>
+      </div>
     )}
-    <div className="mt-6 text-center">
-      <Link
-        to="/auth/register"
-        className="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white"
-      >
-        Ücretsiz kayıt ol
-      </Link>
-    </div>
+    {limited && (
+      <div className="mt-6 text-center">
+        <Link
+          to="/auth/register"
+          className="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white"
+        >
+          Ücretsiz kayıt ol
+        </Link>
+      </div>
+    )}
   </section>
 );
 

@@ -3,7 +3,8 @@ import { Order } from "../types";
 
 export const fetchMyOrders = async (role: "customer" | "seller" = "customer") => {
   const params = role === "seller" ? "?role=seller" : "";
-  const { data } = await api.get<Order[]>(`/api/orders/${params}`);
+  const endpoint = params ? `/api/orders${params}` : "/api/orders";
+  const { data } = await api.get<Order[]>(endpoint);
   return data;
 };
 

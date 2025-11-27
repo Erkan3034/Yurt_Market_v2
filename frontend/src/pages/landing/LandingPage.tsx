@@ -33,7 +33,7 @@ export const LandingPage = () => {
           throw new Error("Ürünler şu anda gösterilemiyor.");
         }
         const data = await response.json();
-        setProducts(data.slice(0, 10));
+        setProducts(accessToken ? data : data.slice(0, 10));
       } catch (err) {
         setError(
           "Şimdilik sadece örnek ürünleri gösteriyoruz. Giriş yaptıktan sonra tüm menüyü keşfedebilirsin.",
@@ -76,7 +76,12 @@ export const LandingPage = () => {
       <main className="flex flex-col gap-24 pt-16">
         <HeroSection />
         <FeatureSection />
-        <LimitedProducts products={products} loading={loadingProducts} error={error} />
+        <LimitedProducts
+          products={products}
+          loading={loadingProducts}
+          error={error}
+          limited={!accessToken}
+        />
         <StatsSection />
         <PricingSection />
         <TestimonialsSection />

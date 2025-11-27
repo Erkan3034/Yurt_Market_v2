@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchMyOrders, orderAction } from "../../services/orders";
+import { toast } from "react-hot-toast";
+import { Spinner } from "../../components/ui/Spinner";
 
 export const SellerOrdersPage = () => {
   const queryClient = useQueryClient();
@@ -11,10 +13,20 @@ export const SellerOrdersPage = () => {
   const mutation = useMutation({
     mutationFn: ({ id, action }: { id: number; action: "approve" | "reject" | "cancel" }) =>
       orderAction(action, id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders", "seller"] }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["orders", "seller"] });
+      const label =
+        variables.action === "approve"
+          ? "Sipariş onaylandı"
+          : variables.action === "reject"
+          ? "Sipariş reddedildi"
+          : "Sipariş iptal edildi";
+      toast.success(label);
+    },
+    onError: () => toast.error("İşlem başarısız"),
   });
 
-  if (isLoading) return <p>Yükleniyor...</p>;
+  if (isLoading) return <Spinner label="Siparişler yükleniyor..." />;
 
   return (
     <div className="space-y-4">

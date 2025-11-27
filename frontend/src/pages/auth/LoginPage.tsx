@@ -6,6 +6,8 @@ import { login } from "../../services/auth";
 import { authStore } from "../../store/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { getErrorMessage } from "../../lib/errors";
 
 const schema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
@@ -27,11 +29,14 @@ export const LoginPage = () => {
     mutationFn: ({ email, password }: LoginForm) => login(email, password),
     onSuccess: () => {
       setServerError(null);
+      toast.success("Giriş başarılı!");
       const role = authStore.getState().user?.role;
       navigate(role === "seller" ? "/seller/products" : "/app/explore");
     },
     onError: (error: any) => {
-      setServerError(error?.response?.data?.detail ?? "Giriş başarısız oldu");
+      const message = getErrorMessage(error, "Giriş başarısız oldu");
+      setServerError(message);
+      toast.error(message);
     },
   });
 

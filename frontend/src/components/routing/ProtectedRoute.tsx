@@ -14,7 +14,8 @@ export const ProtectedRoute = ({ children, role }: ProtectedRouteProps) => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  if (role && user.role !== role) {
+  const isAdmin = user.role === "admin";
+  if (role && user.role !== role && !isAdmin) {
     return <Navigate to={user.role === "seller" ? "/seller/products" : "/app/explore"} replace />;
   }
 

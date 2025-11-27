@@ -1,5 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchSubscriptionStatus, startSubscription } from "../../services/subscription";
+import { toast } from "react-hot-toast";
+import { Spinner } from "../../components/ui/Spinner";
 
 const plans = [
   { id: 1, name: "Pro Satıcı", price: 199, description: "Limitsiz ürün, analitik, bildirimler." },
@@ -14,9 +16,11 @@ export const SubscriptionPage = () => {
   const mutation = useMutation({
     mutationFn: (planId: number) => startSubscription(planId),
     onSuccess: (data) => {
+      toast.success("Ödeme sayfası açılıyor");
       window.open(data.payment_session.checkout_url ?? data.payment_session.success_url, "_blank");
       statusQuery.refetch();
     },
+    onError: () => toast.error("Abonelik başlatılamadı"),
   });
 
   return (
@@ -30,7 +34,7 @@ export const SubscriptionPage = () => {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold text-slate-600">Durum</p>
         {statusQuery.isLoading ? (
-          <p className="mt-2 text-sm text-slate-500">Yükleniyor...</p>
+          <Spinner label="Abonelik durumu yükleniyor..." />
         ) : (
           <div className="mt-3">
             <p className="text-lg font-semibold text-slate-900">

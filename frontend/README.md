@@ -1,50 +1,42 @@
-# React + TypeScript + Vite
+# Yurt Market Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite + TypeScript uygulaması. Tailwind, React Query, Zustand ve react-hot-toast ile inşa edildi.
 
-Currently, two official plugins are available:
+## Gereksinimler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js **20.19+** (veya 22.12+). Node 21, Vite tarafından resmi olarak desteklenmediği için uyarılar verir.
+- npm 10+
 
-## Expanding the ESLint configuration
+## Kurulum
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+`.env` içindeki `VITE_API_URL` değeri backend'in çalıştığı adres olmalı (örn. `http://127.0.0.1:8000`).
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Scriptler
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+| Komut           | Açıklama                           |
+| --------------- | ---------------------------------- |
+| `npm run dev`   | Vite geliştirme sunucusu           |
+| `npm run build` | Prod derlemesi (`dist/`)           |
+| `npm run preview` | Prod build önizlemesi           |
+
+## Teknolojiler
+
+- React Router 6 (landing + auth + dashboard rotaları)
+- Tailwind + custom design tokens
+- React Query (API cache)
+- Axios + interceptors (JWT + refresh)
+- Zustand (auth store)
+- react-hot-toast (global bildirim)
+
+## Notlar
+
+- API URL'i `.env` dosyasından gelir.
+- Backend 401 ürettiğinde refresh token otomatik yenilenir, başarısız olursa kullanıcı logout edilir.
+- Landing sayfasında login olmayan kullanıcılar en fazla 10 ürünü görebilir; CTA ile kayıt sayfasına yönlendirilir.

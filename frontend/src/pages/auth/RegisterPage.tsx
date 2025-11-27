@@ -6,6 +6,8 @@ import { register as registerUser } from "../../services/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { authStore } from "../../store/auth";
+import { toast } from "react-hot-toast";
+import { getErrorMessage } from "../../lib/errors";
 
 const schema = z.object({
   email: z.string().email("Geçerli bir e-posta girin"),
@@ -39,11 +41,14 @@ export const RegisterPage = () => {
     mutationFn: (payload: RegisterForm) => registerUser(payload),
     onSuccess: () => {
       setError(null);
+      toast.success("Hesabın oluşturuldu!");
       const role = authStore.getState().user?.role;
       navigate(role === "seller" ? "/seller/products" : "/app/explore");
     },
     onError: (err: any) => {
-      setError(err?.response?.data?.detail ?? "Kayıt sırasında hata oluştu");
+      const message = getErrorMessage(err, "Kayıt sırasında hata oluştu");
+      setError(message);
+      toast.error(message);
     },
   });
 

@@ -3,18 +3,40 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  --background: 248 64% 98%;
+  --foreground: 222 47% 11%;
+  --muted: 213 27% 84%;
+  --muted-foreground: 215 20% 65%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 201 94% 53%;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background-color: #0f172a0a;
+@layer base {
+  body {
+    @apply min-h-screen bg-slate-50 font-sans text-slate-900;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-slate-900;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply rounded-2xl border border-slate-200 focus:border-brand-500 focus:ring-brand-500;
+  }
+
+  button {
+    @apply transition hover:opacity-90;
+  }
 }

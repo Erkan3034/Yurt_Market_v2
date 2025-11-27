@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMyOrders } from "../../services/orders";
 import dayjs from "dayjs";
+import { Spinner } from "../../components/ui/Spinner";
 
 export const OrdersPage = () => {
   const { data, isLoading } = useQuery({
@@ -8,7 +9,7 @@ export const OrdersPage = () => {
     queryFn: () => fetchMyOrders("customer"),
   });
 
-  if (isLoading) return <p>Yükleniyor...</p>;
+  if (isLoading) return <Spinner label="Siparişlerin yükleniyor..." />;
 
   return (
     <div className="space-y-4">

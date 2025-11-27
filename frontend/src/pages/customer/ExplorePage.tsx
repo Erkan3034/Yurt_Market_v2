@@ -4,6 +4,8 @@ import { authStore } from "../../store/auth";
 import { useMemo, useState } from "react";
 import { createOrder } from "../../services/orders";
 import { useMutation } from "@tanstack/react-query";
+import { Spinner } from "../../components/ui/Spinner";
+import { toast } from "react-hot-toast";
 
 export const ExplorePage = () => {
   const user = authStore((state) => state.user);
@@ -53,7 +55,9 @@ export const ExplorePage = () => {
       }),
     onSuccess: () => {
       setCart({});
+      toast.success("Siparişin oluşturuldu!");
     },
+    onError: () => toast.error("Sipariş oluşturulamadı"),
   });
 
   return (
@@ -65,7 +69,7 @@ export const ExplorePage = () => {
         </p>
       </div>
       {isLoading ? (
-        <p>Ürünler yükleniyor...</p>
+        <Spinner label="Ürünler yükleniyor..." />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {data?.map((product) => (
