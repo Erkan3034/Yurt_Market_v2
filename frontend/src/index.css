@@ -53,3 +53,9 @@
     height: 0 !important;
   }
 }
+
+@layer components {
+  input[type="radio"]:checked + div {
+    @apply border-brand-600 bg-brand-50;
+  }
+}

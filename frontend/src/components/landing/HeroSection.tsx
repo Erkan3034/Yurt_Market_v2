@@ -4,7 +4,7 @@ import banner from "../../assets/banner.png";
 
 export const HeroSection = () => {
   return (
-<section className="relative mx-6 lg: mx-auto mt-6 max-w-10xl rounded-3xl overflow-hidden min-h-[500px] flex items-center justify-start bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
+<section className="relative mx-auto mt-6 w-[85%] max-w-[95%] lg:max-w-[1600px] rounded-3xl overflow-hidden min-h-[380px] lg:min-h-[500px] flex items-center justify-start shadow-2xl group">
   {/* Background Image */}
   <img
     src={banner}
