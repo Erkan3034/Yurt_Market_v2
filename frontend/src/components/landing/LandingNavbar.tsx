@@ -21,23 +21,23 @@ export const LandingNavbar = () => {
             <>
               <Link
                 to="/auth/login"
-                className="rounded-full border border-brand-200 bg-white px-5 py-2 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50"
+                className="rounded-full border-2 border-brand-300 bg-white px-5 py-2 text-sm font-semibold text-brand-600 transition-colors hover:border-brand-400 hover:bg-brand-50"
               >
                 Giriş Yap
               </Link>
               <Link
                 to="/auth/register"
-                className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 shadow-sm"
               >
                 Kayıt Ol
               </Link>
             </>
           ) : (
             <Link
-              to={user.role === "seller" ? "/seller/products" : "/app/explore"}
-              className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+              to="/app/explore"
+              className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 shadow-sm"
             >
-              {user.role === "seller" ? "Satıcı Paneli" : "Ürünleri Keşfet"}
+              Ürünleri Keşfet
             </Link>
           )}
         </div>

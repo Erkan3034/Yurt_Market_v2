@@ -6,7 +6,7 @@ interface LimitedProductsProps {
   limited?: boolean;
 }
 
-export const LimitedProducts = ({ products, loading, limited = true }: LimitedProductsProps) => {
+export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => {
   // Demo ürün görselleri (gerçek uygulamada API'den gelecek)
   const productImages: Record<string, string> = {
     "Protein Bar": "https://images.unsplash.com/photo-1606312619070-d48b4b942fad?w=400&h=400&fit=crop",
@@ -29,13 +29,8 @@ export const LimitedProducts = ({ products, loading, limited = true }: LimitedPr
 
   return (
     <section id="products" className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
-      <div className="mb-8 text-center">
+      <div className="mb-8">
         <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">Popüler Ürünler</h2>
-        {limited && (
-          <p className="mt-3 text-sm text-slate-600">
-            Daha fazla ürün görmek için ücretsiz kayıt ol
-          </p>
-        )}
       </div>
 
       {loading ? (
@@ -44,15 +39,15 @@ export const LimitedProducts = ({ products, loading, limited = true }: LimitedPr
         </div>
       ) : (
         <div className="overflow-x-auto pb-4">
-          <div className="flex gap-6 min-w-max px-2">
+          <div className="flex gap-6 min-w-max">
             {displayProducts.map((product, idx) => {
               const imageUrl = productImages[product.name] || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop";
               return (
                 <div
                   key={product.id ?? idx}
-                  className="flex-shrink-0 w-64 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1"
+                  className="flex-shrink-0 w-64 rounded-2xl bg-white shadow-sm overflow-hidden"
                 >
-                  <div className="aspect-square w-full bg-slate-100 overflow-hidden">
+                  <div className="aspect-square w-full bg-slate-100 overflow-hidden rounded-t-2xl">
                     <img
                       src={imageUrl}
                       alt={product.name}
@@ -63,8 +58,8 @@ export const LimitedProducts = ({ products, loading, limited = true }: LimitedPr
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-sm font-semibold text-slate-900 line-clamp-2">{product.name}</p>
-                    <p className="mt-2 text-xl font-bold text-brand-600">₺{product.price.toFixed(2)}</p>
+                    <p className="text-sm font-semibold text-slate-900">{product.name}</p>
+                    <p className="mt-2 text-lg font-bold text-slate-900">₺{Number(product.price || 0).toFixed(2)}</p>
                   </div>
                 </div>
               );
@@ -72,7 +67,6 @@ export const LimitedProducts = ({ products, loading, limited = true }: LimitedPr
           </div>
         </div>
       )}
-
     </section>
   );
 };
