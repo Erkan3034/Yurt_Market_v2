@@ -16,7 +16,18 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
 - Domain event dispatching for stock, subscription, and notification workflows.
 - Event-driven integrations (SMTP alerts, analytics updates, cache busting).
 
+## 🚀 Hızlı Başlangıç
+
+**Yeni geliştiriciler için:** Detaylı kurulum adımları için [`SETUP.md`](SETUP.md) dosyasını okuyun.
+
 ## Local development
+
+### Sistem Gereksinimleri
+- **Python**: 3.11+
+- **Node.js**: 20.19.0+ (LTS önerilir)
+- **npm**: 10.8.2+
+
+### Backend Kurulumu
 
 1. Create and activate a virtual environment targeting Python 3.11+.
 2. Install dependencies:
@@ -28,46 +39,22 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
    # Option 2: Using pyproject.toml (if using setuptools)
    pip install -e .[dev]
    ```
-3. Create `.env` file in the project root (same directory as `manage.py`):
+3. Create `.env` file from `.env.example`:
    ```bash
-   # .env file location: C:\yedekler\OneDrive\Masaüstü\yurt-market-v1\.env
+   # Windows
+   copy .env.example .env
    
-   # Django Settings
-   DJANGO_SECRET_KEY=your-secret-key-here
-   DJANGO_DEBUG=True
-   DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+   # Linux/Mac
+   cp .env.example .env
+   ```
    
-   # Database (Development uses SQLite by default)
-   # Set DB_USE_SQLITE=false to use PostgreSQL in development
-   DB_USE_SQLITE=true
+   Then edit `.env` and set required values (see `.env.example` for reference):
+   ```bash
+   See `.env.example` for all available environment variables.
    
-   # PostgreSQL (only needed if DB_USE_SQLITE=false)
-   DB_NAME=yurt_market
-   DB_USER=yurt
-   DB_PASSWORD=yurt
-   DB_HOST=localhost
-   DB_PORT=5432
-   
-   # Redis (optional for development)
-   REDIS_URL=redis://localhost:6379/0
-   
-   # CORS
-   CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-   
-   # Email (SMTP - optional for development)
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_USER=
-   SMTP_PASSWORD=
-   DEFAULT_FROM_EMAIL=no-reply@yurtmarket.local
-   PAYMENT_PROVIDER=dummy
-   PAYMENT_SUCCESS_URL=http://localhost:3000/payment/success
-   PAYMENT_CANCEL_URL=http://localhost:3000/payment/cancel
-   API_THROTTLE_RATE_ANON=50/minute
-   API_THROTTLE_RATE_USER=200/minute
-   SENTRY_DSN=
-   SENTRY_TRACES_SAMPLE_RATE=0.1
-   ADMIN_ALLOWED_IPS=127.0.0.1,192.168.1.10
+   **Important:** Generate a secure `DJANGO_SECRET_KEY`:
+   ```bash
+   python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 4. Run migrations, seed data, and start the development server:
    ```bash
@@ -78,6 +65,34 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
    ```
 
 **Note**: Development uses SQLite by default (no PostgreSQL required). For production, PostgreSQL is mandatory.
+
+### Frontend Kurulumu
+
+1. Navigate to frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create `.env` file from `.env.example`:
+   ```bash
+   # Windows
+   copy .env.example .env
+   
+   # Linux/Mac
+   cp .env.example .env
+   ```
+
+4. Start development server:
+   ```bash
+   npm run dev
+   ```
+
+Frontend will be available at `http://localhost:5173`
 
 ### Tests
 

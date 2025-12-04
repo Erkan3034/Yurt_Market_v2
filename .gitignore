@@ -42,7 +42,8 @@ db.sqlite3-journal
 .env
 .env.local
 .env.*.local
-*.env
+# Allow .env.example files
+!.env.example
 
 # IDE
 .vscode/
