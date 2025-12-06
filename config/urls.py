@@ -44,6 +44,7 @@ urlpatterns = [
     path("api/notifications/", include("modules.notifications.urls")),
     path("api/analytics/", include("modules.analytics.urls")),
     path("api/payments/", include("modules.payments.urls")),
+    path("api/admin/", include("modules.admin.urls")),
 ]
 
 if settings.DEBUG:

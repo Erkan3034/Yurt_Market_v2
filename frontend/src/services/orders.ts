@@ -21,7 +21,7 @@ export const createOrder = async (payload: {
 };
 
 export const orderAction = async (
-  action: "approve" | "reject" | "cancel",
+  action: "approve" | "reject" | "cancel" | "complete",
   orderId: number,
   note?: string,
 ) => {

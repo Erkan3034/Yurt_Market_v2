@@ -58,3 +58,15 @@ class OrderViewSet(viewsets.ViewSet):
         )
         return Response(OrderSerializer(order).data)
 
+    @action(detail=True, methods=["post"], url_path="complete")
+    def complete(self, request, pk=None):
+        """Mark order as completed (delivered) by seller."""
+        try:
+            order = OrderService().complete(order_id=pk, seller=request.user)
+            return Response(OrderSerializer(order).data)
+        except Exception as e:
+            from core.exceptions import ValidationError, PermissionDeniedError
+            if isinstance(e, (ValidationError, PermissionDeniedError)):
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Sipariş tamamlanırken bir hata oluştu."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

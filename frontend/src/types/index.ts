@@ -17,6 +17,8 @@ export interface User {
   room_number?: string;
   block?: string;
   seller_store_is_open?: boolean | null;
+  is_staff?: boolean;
+  is_superuser?: boolean;
 }
 
 export interface Product {

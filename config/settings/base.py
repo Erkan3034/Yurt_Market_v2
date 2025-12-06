@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "modules.notifications",
     "modules.analytics",
     "modules.payments",
+    "modules.admin",
 ]
 
 MIDDLEWARE = [

@@ -2,6 +2,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .models import Category
 from .serializers import ProductSerializer, ProductWriteSerializer
 from .services import ProductService
 
@@ -47,4 +48,14 @@ class SellerProductViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         ProductService().delete_product(product_id=pk, seller=request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoryListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """List categories for the seller's dorm."""
+        dorm_id = request.user.dorm_id
+        categories = Category.objects.filter(dorm_id=dorm_id).order_by("name")
+        return Response([{"id": cat.id, "name": cat.name, "slug": cat.slug} for cat in categories])
 

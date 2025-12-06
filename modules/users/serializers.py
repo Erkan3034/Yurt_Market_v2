@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "role", "dorm_id", "date_joined", "phone", "room_number", "block", "seller_store_is_open"]
+        fields = ["id", "email", "role", "dorm_id", "date_joined", "phone", "room_number", "block", "seller_store_is_open", "is_staff", "is_superuser"]
 
     def get_seller_store_is_open(self, obj):
         if hasattr(obj, "seller_profile"):

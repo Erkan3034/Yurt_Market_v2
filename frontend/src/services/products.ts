@@ -1,6 +1,12 @@
 import { api } from "../lib/api-client";
 import { Product } from "../types";
 
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export const fetchDormProducts = async (dormId?: number) => {
   const { data } = await api.get<Product[]>(`/api/products?dorm=${dormId ?? ""}`);
   return data;
@@ -8,6 +14,11 @@ export const fetchDormProducts = async (dormId?: number) => {
 
 export const fetchSellerProducts = async () => {
   const { data } = await api.get<Product[]>("/api/products/seller/products");
+  return data;
+};
+
+export const fetchCategories = async () => {
+  const { data } = await api.get<Category[]>("/api/products/categories");
   return data;
 };
 

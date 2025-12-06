@@ -11,7 +11,8 @@ from core.validators import positive_int_validator
 class Order(TimestampedModel):
     class Status(models.TextChoices):
         PENDING = "PENDING", "Beklemede"
-        ONAY = "ONAY", "Onaylandı"
+        ONAY = "ONAY", "Hazırlanıyor"
+        COMPLETED = "COMPLETED", "Tamamlandı"
         RED = "RED", "Reddedildi"
         IPTAL = "IPTAL", "İptal Edildi"
 

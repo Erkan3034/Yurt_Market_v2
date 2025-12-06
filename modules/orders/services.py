@@ -151,6 +151,15 @@ class OrderService:
         order.open_chat(message=reason or "Sipariş iptal edildi.", sender="seller")
         return order
 
+    def complete(self, order_id: int, seller: User) -> Order:
+        """Mark order as completed (delivered) by seller."""
+        order = self.order_repo.get(id=order_id, seller=seller)
+        if order.status != Order.Status.ONAY:
+            raise ValidationError("Sadece hazırlanıyor durumundaki siparişler tamamlanabilir.")
+        order = self._change_status(order=order, actor=seller, status=Order.Status.COMPLETED)
+        self._trigger_analytics_refresh(order.dorm_id)
+        return order
+
     def list_for_customer(self, customer: User):
         return self.order_repo.for_customer(customer.id).select_related("seller")
 
