@@ -334,20 +334,20 @@ celery -A config worker --loglevel=info
 
 1. **Terminal 1 - Backend:**
    ```bash
-   cd yurt-market-v1
+   cd yurt-market-v2
    venv\Scripts\activate  # Windows (veya source venv/bin/activate)
    python manage.py runserver
    ```
 
 2. **Terminal 2 - Frontend:**
    ```bash
-   cd yurt-market-v1/frontend
+   cd yurt-market-v2/frontend
    npm run dev
    ```
 
 3. **Terminal 3 - Celery (Opsiyonel):**
    ```bash
-   cd yurt-market-v1
+   cd yurt-market-v2
    venv\Scripts\activate
    celery -A config worker --loglevel=info
    ```
