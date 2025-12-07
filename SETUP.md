@@ -553,6 +553,71 @@ python manage.py migrate
 
 Bu komut `db.sqlite3` dosyasını oluşturur ve tüm migration'ları çalıştırır.
 
+### 13. "Internal server error" - Kayıt Sırasında Hata
+
+**Sorun:** Kayıt formunda "Internal server error" hatası alınıyor
+
+**Olası Nedenler ve Çözümler:**
+
+1. **Veritabanı Migration'ları Yapılmamış:**
+   ```bash
+   python manage.py migrate
+   ```
+
+2. **Seed Data Çalıştırılmamış:**
+   ```bash
+   python scripts/seed_data.py
+   ```
+
+3. **Backend Sunucusu Çalışmıyor:**
+   - Backend terminalinde `python manage.py runserver` çalıştırıldığından emin olun
+   - `http://127.0.0.1:8000/health/` adresine gidip kontrol edin
+
+4. **CORS Hatası:**
+   - `.env` dosyasında `CORS_ALLOWED_ORIGINS` değerini kontrol edin
+   - Frontend URL'ini ekleyin: `http://localhost:5173,http://127.0.0.1:5173`
+   - Backend sunucusunu yeniden başlatın
+
+5. **Backend Loglarını Kontrol Edin:**
+   - Backend terminalinde hata mesajlarını kontrol edin
+   - Hata detayları orada görünecektir
+
+6. **Eksik Alanlar:**
+   - Satıcı kaydı için `phone` alanı zorunludur
+   - Tüm zorunlu alanların doldurulduğundan emin olun
+
+**Debug Adımları:**
+
+1. Backend terminalinde hata mesajını okuyun
+2. Django shell ile test edin:
+   ```bash
+   python manage.py shell
+   >>> from modules.users.services import UserService
+   >>> service = UserService()
+   >>> service.register_user(
+   ...     email="test@example.com",
+   ...     password="test123456",
+   ...     dorm_name="Test Yurt",
+   ...     role="student"
+   ... )
+   ```
+3. Eğer hata devam ederse, backend loglarını paylaşın
+
+**Hızlı Çözüm (Veritabanını Sıfırlama):**
+```bash
+# Veritabanını sıfırla
+python manage.py flush
+
+# Migration'ları tekrar çalıştır
+python manage.py migrate
+
+# Seed data'yı ekle
+python scripts/seed_data.py
+
+# Admin kullanıcı oluştur
+python scripts/create_superuser.py
+```
+
 ## Test Etme
 
 ### Backend Testleri

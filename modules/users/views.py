@@ -13,10 +13,31 @@ class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = RegisterSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Registration error: {str(e)}", exc_info=True)
+            
+            # Return a more descriptive error message
+            error_message = str(e)
+            if "ValidationError" in str(type(e)):
+                error_message = str(e)
+            elif "dorm" in error_message.lower() or "Dorm" in error_message:
+                error_message = "Yurt bilgisi oluşturulamadı. Lütfen yurt adını kontrol edin."
+            elif "email" in error_message.lower():
+                error_message = "Bu e-posta adresi zaten kullanılıyor."
+            elif "password" in error_message.lower():
+                error_message = "Şifre gereksinimleri karşılanmıyor."
+            else:
+                error_message = "Kayıt sırasında bir hata oluştu. Lütfen bilgilerinizi kontrol edin."
+            
+            return Response({"detail": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MeView(APIView):
