@@ -41,5 +41,9 @@ CACHES = {  # type: ignore[name-defined]
 }
 
 # Session için database backend kullan (Redis gerektirmez)
+<<<<<<< Updated upstream
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
+=======
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+>>>>>>> Stashed changes

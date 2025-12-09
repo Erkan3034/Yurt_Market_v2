@@ -14,7 +14,7 @@ export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => 
     "Soğuk Kahve": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop",
     "Cips Paketi": "https://images.unsplash.com/photo-1612929633736-8c8cb0c8a3e1?w=400&h=400&fit=crop",
     "Enerji İçeceği": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop",
-    "Hazır Noodle": "https://images.unsplash.com/photo-1612929633736-8c8cb0c8a3e1?w=400&h=400&fit=crop",
+    
   };
 
   // İlk 5 ürünü göster veya demo ürünler
@@ -25,7 +25,7 @@ export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => 
         { id: 2, name: "Soğuk Kahve", price: 20.0, category_name: "İçecek", is_out_of_stock: false },
         { id: 3, name: "Cips Paketi", price: 18.5, category_name: "Atıştırmalık", is_out_of_stock: false },
         { id: 4, name: "Enerji İçeceği", price: 30.0, category_name: "İçecek", is_out_of_stock: false },
-        { id: 5, name: "Hazır Noodle", price: 17.5, category_name: "Atıştırmalık", is_out_of_stock: false },
+        
       ];
 
   // ProductCard için formatlanmış ürünler
