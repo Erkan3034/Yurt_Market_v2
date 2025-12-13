@@ -1,9 +1,12 @@
 from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category
-from .serializers import ProductSerializer, ProductWriteSerializer
+from core.exceptions import PermissionDeniedError, NotFoundError
+from .models import Category, Product, ProductImage
+from .serializers import ProductSerializer, ProductWriteSerializer, ProductImageSerializer
 from .services import ProductService
 
 
@@ -47,6 +50,43 @@ class SellerProductViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         ProductService().delete_product(product_id=pk, seller=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["post"], parser_classes=[MultiPartParser, FormParser])
+    def upload_image(self, request, pk=None):
+        """Upload an image for a product."""
+        try:
+            product = Product.objects.get(id=pk)
+        except Product.DoesNotExist:
+            raise NotFoundError("Ürün bulunamadı")
+        
+        if product.seller_id != request.user.id:
+            raise PermissionDeniedError("Bu ürüne erişim izniniz yok")
+        
+        image_file = request.FILES.get("image")
+        if not image_file:
+            return Response({"detail": "Fotoğraf dosyası gerekli"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Delete existing images (keep only one image per product for simplicity)
+        product.images.all().delete()
+        
+        # Create new image
+        product_image = ProductImage.objects.create(product=product, image=image_file)
+        
+        return Response(ProductImageSerializer(product_image).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["delete"], url_path="delete_image")
+    def delete_image(self, request, pk=None):
+        """Delete all images for a product."""
+        try:
+            product = Product.objects.get(id=pk)
+        except Product.DoesNotExist:
+            raise NotFoundError("Ürün bulunamadı")
+        
+        if product.seller_id != request.user.id:
+            raise PermissionDeniedError("Bu ürüne erişim izniniz yok")
+        
+        product.images.all().delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

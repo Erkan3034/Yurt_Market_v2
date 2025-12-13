@@ -16,7 +16,7 @@ class AnalyticsService:
 
         cutoff = timezone.now() - timedelta(days=30)
         aggregates = (
-            Order.objects.filter(dorm_id=dorm_id, created_at__gte=cutoff, status=Order.Status.ONAY)
+            Order.objects.filter(dorm_id=dorm_id, created_at__gte=cutoff, status=Order.Status.COMPLETED)
             .values("seller_id")
             .annotate(total_orders=models.Count("id"), total_amount=models.Sum("total_amount"))
             .order_by("-total_amount")
@@ -56,7 +56,7 @@ class AnalyticsService:
         # Current period orders
         current_orders = Order.objects.filter(
             seller_id=seller_id,
-            status=Order.Status.ONAY,
+            status=Order.Status.COMPLETED,
             created_at__gte=start_date,
             created_at__lte=now,
         )
@@ -64,7 +64,7 @@ class AnalyticsService:
         # Previous period orders
         previous_orders = Order.objects.filter(
             seller_id=seller_id,
-            status=Order.Status.ONAY,
+            status=Order.Status.COMPLETED,
             created_at__gte=prev_start_date,
             created_at__lt=start_date,
         )
@@ -128,7 +128,7 @@ class AnalyticsService:
         # Get all orders in the period
         orders = Order.objects.filter(
             seller_id=seller_id,
-            status=Order.Status.ONAY,
+            status=Order.Status.COMPLETED,
             created_at__gte=start_date,
             created_at__lte=now,
         ).order_by("created_at")
@@ -155,7 +155,7 @@ class AnalyticsService:
         result = []
         for week_num in range(1, expected_weeks + 1):
             result.append({
-                "week": f"Week {week_num}",
+                "week": f"Hafta {week_num}",
                 "revenue": float(week_data.get(week_num, 0)),
             })
         
@@ -172,7 +172,7 @@ class AnalyticsService:
         order_items = (
             OrderItem.objects.filter(
                 order__seller_id=seller_id,
-                order__status=Order.Status.ONAY,
+                order__status=Order.Status.COMPLETED,
                 order__created_at__gte=start_date,
                 order__created_at__lte=now,
             )

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from django.contrib.auth import get_user_model
+from django.db.models import ProtectedError
 
 from core.exceptions import PermissionDeniedError, ValidationError
 from core.utils.logging import get_logger
@@ -96,13 +97,19 @@ class ProductService:
     def delete_product(self, *, product_id: int, seller: User) -> None:
         product = self.product_repo.get(id=product_id)
         self._ensure_product_owner(product, seller)
-        self.product_repo.delete(product)
+        try:
+            self.product_repo.delete(product)
+        except ProtectedError:
+            raise ValidationError(
+                "Bu ürün mevcut siparişlerde kullanıldığı için silinemez. "
+                "Ürünü pasif yaparak gizleyebilirsiniz."
+            )
         self._sync_usage_slots(seller)
         logger.info("product.deleted", product_id=product_id, seller_id=seller.id)
 
     def list_for_dorm(self, dorm_id: int):
-        return self.product_repo.find_by_dorm(dorm_id).select_related("stock", "category", "seller", "seller__seller_profile")
+        return self.product_repo.find_by_dorm(dorm_id).select_related("stock", "category", "seller", "seller__seller_profile").prefetch_related("images")
 
     def list_for_seller(self, seller: User):
-        return self.product_repo.find_by_seller(seller.id).select_related("stock", "category")
+        return self.product_repo.find_by_seller(seller.id).select_related("stock", "category").prefetch_related("images")
 

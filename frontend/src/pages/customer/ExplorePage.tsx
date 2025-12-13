@@ -396,25 +396,32 @@ export const ExplorePage = () => {
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => {
-                const imageUrl = getProductImage(product.name);
+                const imageUrl = product.image_url || getProductImage(product.name);
                 return (
                    <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all hover:shadow-lg">
                     <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
-                      <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                      <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = getProductImage(product.name); }} />
                       {product.category_name && (
                          <div className="absolute left-3 top-3 rounded-full bg-brand-600/90 px-3 py-1 text-xs font-semibold text-white">
                            {product.category_name}
                          </div>
                       )}
-                      {product.seller_store_is_open === false && (
-                        <div className="absolute right-3 top-3 rounded-full bg-red-600/90 px-3 py-1 text-xs font-semibold text-white">Mağaza Kapalı</div>
-                      )}
+                      <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+                        {product.is_out_of_stock && (
+                          <div className="rounded-full bg-red-600/90 px-3 py-1 text-xs font-semibold text-white">Tükendi</div>
+                        )}
+                        {product.seller_store_is_open === false && (
+                          <div className="rounded-full bg-slate-800/90 px-3 py-1 text-xs font-semibold text-white">Mağaza Kapalı</div>
+                        )}
+                      </div>
                     </div>
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
                       <div className="mt-4 flex items-center justify-between">
                         <p className="text-xl font-bold text-brand-600">₺{Number(product.price || 0).toFixed(2)}</p>
-                        {/* Stok durumu vb. */}
+                        {product.is_out_of_stock && (
+                          <span className="text-sm font-medium text-red-500">Stok Yok</span>
+                        )}
                       </div>
                       <button
                         onClick={() => addToCart(product.id)}

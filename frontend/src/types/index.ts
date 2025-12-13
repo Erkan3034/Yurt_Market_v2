@@ -21,6 +21,12 @@ export interface User {
   is_superuser?: boolean;
 }
 
+export interface ProductImage {
+  id: number;
+  image: string;
+  created_at: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -35,6 +41,8 @@ export interface Product {
   seller_store_is_open?: boolean;
   seller_phone?: string;
   seller_room?: string;
+  images?: ProductImage[];
+  image_url?: string | null;
 }
 
 export interface OrderItem {

@@ -12,9 +12,11 @@ dayjs.locale("tr");
 const getStatusInfo = (status: string) => {
   switch (status) {
     case "ONAY":
-      return { label: "Onaylandı", className: "bg-green-100 text-green-700" };
+      return { label: "Hazırlanıyor", className: "bg-yellow-100 text-yellow-700" };
     case "PENDING":
-      return { label: "Beklemede", className: "bg-yellow-100 text-yellow-700" };
+      return { label: "Beklemede", className: "bg-blue-100 text-blue-700" };
+    case "COMPLETED":
+      return { label: "Tamamlandı", className: "bg-green-100 text-green-700" };
     case "IPTAL":
       return { label: "İptal Edildi", className: "bg-slate-100 text-slate-700" };
     case "RED":
@@ -68,7 +70,7 @@ export const OrdersPage = () => {
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Ara"
                 className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               />
             </div>

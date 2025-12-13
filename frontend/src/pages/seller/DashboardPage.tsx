@@ -78,9 +78,9 @@ export const DashboardPage = () => {
   };
 
   const getRangeLabel = (range: string) => {
-    if (range === "7") return "Last 7 Days";
-    if (range === "365") return "This Year";
-    return "Last 30 Days";
+    if (range === "7") return "Son 7 Gün";
+    if (range === "365") return "Bu Yıl";
+    return "Son 30 Gün";
   };
 
   return (

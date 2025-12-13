@@ -32,7 +32,7 @@ export const DashboardShell = ({ sidebar, children, isOpen, onClose, onOpen }: D
           )}
         </div>
         <p className="mt-4 text-base font-bold text-slate-900">
-          {user?.email?.split("@")[0] || "Seller Name"}
+          {user?.email?.split("@")[0] || "Kullanıcı"}
         </p>
         <p className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-wide">
           {user?.role === "seller" ? "Satıcı Hesabı" : "Öğrenci"}

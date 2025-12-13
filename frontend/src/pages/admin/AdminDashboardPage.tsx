@@ -62,50 +62,50 @@ export const AdminDashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
+      <h1 className="text-3xl font-bold text-slate-900">Panel Genel Görünümü</h1>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title="Total Revenue"
+          title="Toplam Gelir"
           value={formatCurrency(stats.total_revenue)}
           change={stats.revenue_change}
-          changeLabel="vs last month"
+          changeLabel="geçen aya göre"
         />
         <MetricCard
-          title="Subscriptions"
+          title="Abonelikler"
           value={`+${stats.subscriptions}`}
           change={stats.subscriptions_change}
-          changeLabel="vs last month"
+          changeLabel="geçen aya göre"
         />
         <MetricCard
-          title="Sales"
+          title="Satışlar"
           value={`+${stats.sales}`}
           change={stats.sales_change}
-          changeLabel="vs last month"
+          changeLabel="geçen aya göre"
         />
         <MetricCard
-          title="Active Now"
+          title="Aktif Kullanıcı"
           value={stats.active_now.toString()}
           change={stats.active_now_change}
-          changeLabel="since last hour"
+          changeLabel="son 1 saatte"
         />
       </div>
 
       {/* Recent Orders */}
       <div>
-        <h2 className="mb-4 text-xl font-bold text-slate-900">Recent Orders</h2>
+        <h2 className="mb-4 text-xl font-bold text-slate-900">Son Siparişler</h2>
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full">
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">
-                  Customer
+                  Müşteri
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Tür</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Durum</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Tarih</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-600">Tutar</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">

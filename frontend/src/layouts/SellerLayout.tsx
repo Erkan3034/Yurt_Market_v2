@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { authStore } from "../store/auth";
 
 const menu = [
-  { label: "Dashboard", to: "/seller/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { label: "Panel", to: "/seller/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Ürünlerim", to: "/seller/products", icon: <Package className="h-4 w-4" /> },
   { label: "Siparişler", to: "/seller/orders", icon: <ClipboardCheck className="h-4 w-4" /> },
   { label: "Analitik", to: "/seller/analytics", icon: <BarChart3 className="h-4 w-4" /> },

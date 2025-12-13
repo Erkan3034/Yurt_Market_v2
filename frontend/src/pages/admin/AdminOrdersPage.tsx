@@ -12,15 +12,15 @@ dayjs.locale("tr");
 const getStatusInfo = (status: string) => {
   switch (status) {
     case "PENDING":
-      return { label: "Pending", className: "bg-yellow-100 text-yellow-700" };
+      return { label: "Beklemede", className: "bg-blue-100 text-blue-700" };
     case "ONAY":
-      return { label: "Fulfilled", className: "bg-green-100 text-green-700" };
+      return { label: "Hazırlanıyor", className: "bg-yellow-100 text-yellow-700" };
     case "COMPLETED":
-      return { label: "Fulfilled", className: "bg-green-100 text-green-700" };
+      return { label: "Tamamlandı", className: "bg-green-100 text-green-700" };
     case "RED":
-      return { label: "Declined", className: "bg-red-100 text-red-700" };
+      return { label: "Reddedildi", className: "bg-red-100 text-red-700" };
     case "IPTAL":
-      return { label: "Declined", className: "bg-red-100 text-red-700" };
+      return { label: "İptal Edildi", className: "bg-slate-100 text-slate-700" };
     default:
       return { label: status, className: "bg-slate-100 text-slate-700" };
   }
